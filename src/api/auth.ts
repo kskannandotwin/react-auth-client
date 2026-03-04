@@ -12,6 +12,6 @@ export const loginApi = (data: { email: string; password: string }) => {
   return api.post("/auth/login", data);
 };
 
-export const refreshTokenApi = (refreshToken: string) => {
-  return api.post("/auth/refresh", { refreshToken });
+export const refreshTokenApi = (refresh_token: string) => {
+  return api.post("/auth/refresh", { refresh_token });
 };
