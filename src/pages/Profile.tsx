@@ -21,11 +21,17 @@ export default function Profile() {
       <h2>Profile</h2>
       <pre>{JSON.stringify(user, null, 2)}</pre>
 
-      {decodedUser?.role === "admin" && (
-        <button onClick={() => navigate("/admin")}>Go to admin panel</button>
-      )}
+      <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+        <button onClick={() => navigate("/data")}>Manage Data</button>
 
-      {decodedUser?.role === "user" && <button>Normal user action</button>}
+        {decodedUser?.role === "admin" && (
+          <button onClick={() => navigate("/admin")}>Go to admin panel</button>
+        )}
+
+        {decodedUser?.role === "user" && (
+          <button disabled>Normal user action</button>
+        )}
+      </div>
     </>
   );
 }

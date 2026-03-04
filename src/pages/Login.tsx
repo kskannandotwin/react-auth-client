@@ -17,7 +17,8 @@ export default function Login() {
       alert("Login successful");
       navigate("/profile");
     } catch (err: any) {
-      alert(err.response?.data?.message || "Login failed");
+      console.error("Login Error:", err);
+      alert(err.response?.data?.message || err.message || "Login failed");
     }
   };
   return (

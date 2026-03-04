@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import Admin from "./pages/Admin";
 import Register from "./pages/Register";
+import DataManagement from "./pages/DataManagement";
 
 function App() {
   return (
@@ -27,6 +28,14 @@ function App() {
             <AdminRoute>
               <Admin />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/data"
+          element={
+            <ProtectedRoute>
+              <DataManagement />
+            </ProtectedRoute>
           }
         />
       </Routes>
