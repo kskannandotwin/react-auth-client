@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchDataApi, createDataApi } from "../api/data";
+import { fetchUsersApi, deleteUserApi } from "../api/users";
 import type { DataItem } from "../api/data";
 import { getUserFromToken } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ export default function Admin() {
   const [visibility, setVisibility] = useState<"admin" | "user" | "both">(
     "both",
   );
+  const [users, setUsers] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const user = useMemo(() => getUserFromToken(), []);
@@ -29,12 +31,29 @@ export default function Admin() {
     setLoading(true);
     try {
       const allData = await fetchDataApi();
+      const allUsers = await fetchUsersApi();
       // Admin sees everything
       setItems(allData);
+      setUsers(allUsers.data);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (id: number, email: string) => {
+    if (!window.confirm(`Are you sure you want to delete user ${email}?`)) {
+      return;
+    }
+
+    try {
+      await deleteUserApi(id);
+      alert("User deleted successfully");
+      await loadData();
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      alert("Failed to delete user");
     }
   };
 
@@ -125,6 +144,54 @@ export default function Admin() {
             {isSubmitting ? "Adding..." : "Add System Item"}
           </button>
         </form>
+      </section>
+
+      <section style={{ marginBottom: "40px" }}>
+        <h2>User Management</h2>
+        {users.length === 0 ? (
+          <p>No users found.</p>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gap: "10px",
+              background: "#1a1a1a",
+              padding: "15px",
+              borderRadius: "8px",
+            }}
+          >
+            {users.map((u) => (
+              <div
+                key={u.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "10px",
+                  borderBottom: "1px solid #333",
+                }}
+              >
+                <div>
+                  <strong>{u.name || "No Name"}</strong> ({u.email}) -{" "}
+                  <span style={{ color: "#888" }}>{u.role}</span>
+                </div>
+                {u.id !== user.sub && (
+                  <button
+                    onClick={() => handleDeleteUser(u.id, u.email)}
+                    style={{
+                      background: "#ff4d4d",
+                      color: "white",
+                      padding: "5px 10px",
+                      fontSize: "0.8em",
+                    }}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section>
