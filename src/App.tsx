@@ -6,7 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import Admin from "./pages/Admin";
 import Register from "./pages/Register";
-import DataManagement from "./pages/DataManagement";
+import UserData from "./pages/UserData";
 
 function App() {
   return (
@@ -31,10 +31,10 @@ function App() {
           }
         />
         <Route
-          path="/data"
+          path="/user-data"
           element={
             <ProtectedRoute>
-              <DataManagement />
+              <UserData />
             </ProtectedRoute>
           }
         />

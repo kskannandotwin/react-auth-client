@@ -70,14 +70,10 @@ export default function Profile() {
       </div>
 
       <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-        <button onClick={() => navigate("/data")}>Manage Data</button>
-
-        {decodedUser?.role === "admin" && (
-          <button onClick={() => navigate("/admin")}>Go to admin panel</button>
-        )}
-
-        {decodedUser?.role === "user" && (
-          <button disabled>Normal user action</button>
+        {decodedUser?.role === "admin" ? (
+          <button onClick={() => navigate("/admin")}>Admin Dashboard</button>
+        ) : (
+          <button onClick={() => navigate("/user-data")}>My Data</button>
         )}
       </div>
     </div>

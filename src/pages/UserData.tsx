@@ -4,21 +4,19 @@ import type { DataItem } from "../api/data";
 import { getUserFromToken } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 
-export default function Admin() {
+export default function UserData() {
   const [items, setItems] = useState<DataItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
-  const [visibility, setVisibility] = useState<"admin" | "user" | "both">(
-    "both",
-  );
+  const [visibility, setVisibility] = useState<"user" | "both">("both");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const user = useMemo(() => getUserFromToken(), []);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || user.role !== "admin") {
+    if (!user || user.role !== "user") {
       navigate("/profile");
       return;
     }
@@ -29,8 +27,10 @@ export default function Admin() {
     setLoading(true);
     try {
       const allData = await fetchDataApi();
-      // Admin sees everything
-      setItems(allData);
+      const filtered = allData.filter(
+        (item) => item.visibility === "user" || item.visibility === "both",
+      );
+      setItems(filtered);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -45,7 +45,7 @@ export default function Admin() {
     setIsSubmitting(true);
     try {
       await createDataApi(
-        { name, content, visibility },
+        { name, content, visibility: visibility as any },
         user.name || user.email,
       );
       setName("");
@@ -59,7 +59,7 @@ export default function Admin() {
     }
   };
 
-  if (loading && items.length === 0) return <div>Loading Admin Panel...</div>;
+  if (loading && items.length === 0) return <div>Loading your data...</div>;
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
@@ -70,22 +70,20 @@ export default function Admin() {
         Back to Profile
       </button>
 
-      <h1>Admin Dashboard</h1>
+      <h1>My Data</h1>
       <p>
-        Manage all system data. Logged in as:{" "}
-        <strong>{user?.name || user?.email}</strong>
+        Logged in as: <strong>{user?.name || user?.email}</strong>
       </p>
 
       <section
         style={{
           marginBottom: "40px",
           padding: "20px",
-          border: "2px solid #b30000",
+          border: "1px solid #444",
           borderRadius: "8px",
-          background: "rgba(179, 0, 0, 0.05)",
         }}
       >
-        <h2>System-Wide: Add New Data</h2>
+        <h2>Add New Item</h2>
         <form
           onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: "10px" }}
@@ -106,31 +104,26 @@ export default function Admin() {
             style={{ padding: "8px", minHeight: "100px" }}
           />
           <div>
-            <label style={{ marginRight: "10px" }}>Visibility Level:</label>
+            <label style={{ marginRight: "10px" }}>Visibility:</label>
             <select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as any)}
               style={{ padding: "8px" }}
             >
-              <option value="both">Both (Public)</option>
-              <option value="user">User Only</option>
-              <option value="admin">Admin Only (Private)</option>
+              <option value="both">Public (Both)</option>
+              <option value="user">Private (User Only)</option>
             </select>
           </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            style={{ background: "#b30000", color: "white" }}
-          >
-            {isSubmitting ? "Adding..." : "Add System Item"}
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Adding..." : "Add Item"}
           </button>
         </form>
       </section>
 
       <section>
-        <h2>All System Data Items</h2>
+        <h2>My Items</h2>
         {items.length === 0 ? (
-          <p>No data available in the system.</p>
+          <p>No data available yet.</p>
         ) : (
           <div style={{ display: "grid", gap: "20px" }}>
             {items.map((item) => (
@@ -140,10 +133,6 @@ export default function Admin() {
                   padding: "15px",
                   border: "1px solid #666",
                   borderRadius: "8px",
-                  background:
-                    item.visibility === "admin"
-                      ? "rgba(255, 0, 0, 0.1)"
-                      : "transparent",
                 }}
               >
                 <div
@@ -159,13 +148,8 @@ export default function Admin() {
                       fontSize: "0.8em",
                       padding: "2px 8px",
                       borderRadius: "4px",
-                      background: "#333",
-                      color:
-                        item.visibility === "admin"
-                          ? "#ff4d4d"
-                          : item.visibility === "user"
-                            ? "#4dff88"
-                            : "#8888ff",
+                      background: "#444",
+                      color: "#4dff88",
                     }}
                   >
                     {item.visibility.toUpperCase()}
@@ -179,8 +163,7 @@ export default function Admin() {
                     marginTop: "10px",
                   }}
                 >
-                  By {item.createdBy} on{" "}
-                  {new Date(item.createdAt).toLocaleDateString()}
+                  Created on {new Date(item.createdAt).toLocaleDateString()}
                 </div>
               </div>
             ))}
