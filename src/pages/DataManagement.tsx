@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { fetchDataApi, createDataApi } from "../api/data";
 import type { DataItem } from "../api/data";
 import { getUserFromToken } from "../utils/auth";
@@ -14,7 +14,7 @@ export default function DataManagement() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const user = getUserFromToken();
+  const user = useMemo(() => getUserFromToken(), []);
   const navigate = useNavigate();
 
   useEffect(() => {
